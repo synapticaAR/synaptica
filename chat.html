@@ -59,7 +59,7 @@
       typing.textContent="Synaptica está escribiendo…";chatBox.appendChild(typing);chatBox.scrollTop=chatBox.scrollHeight;
 
       try{
-        const res=await fetch("https://synaptica-backend.replit.app/chat",{
+        const res=await fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
           method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({messages:memory})
         });
