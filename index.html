@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Synaptica</title>
+
+  <!--  hoja de estilos externa  -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!--  fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!--  animación para ocultar la portada -->
+  <style>
+    .ocultar-hero {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+      height: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body class="index">
+  <!-- ===== PORTADA / HERO ===== -->
+  <section class="hero" id="top">
+    <img src="Ayuda.png" alt="Logo" class="logo">
+    <h1>Synaptica</h1>
+    <p>La inteligencia que entiende emociones</p>
+    <button class="cta" onclick="scrollToMain()">Empezar</button>
+  </section>
+
+  <!-- ===== NAV ===== -->
+  <nav id="mainNav">
+    <a href="index.html">Inicio</a>
+    <a href="ayuda.html">Ayuda</a>
+    <a href="chat.html">IA Especializada</a>
+    <a href="relajacion.html">Relajación</a>
+    <a href="psicologo.html">Psicólogo</a>
+  </nav>
+
+  <!-- ===== HEADER PRINCIPAL ===== -->
+  <header id="mainHeader">
+    <h2>SYNAPTICA</h2>
+    <p>Tu espacio inteligente de apoyo emocional y psicológico</p>
+  </header>
+
+  <!-- ===== SECCIÓN PRINCIPAL CON CHAT ===== -->
+  <section id="main">
+    <div class="chat-card">
+      <div id="introChatBox" class="chat-box" aria-live="polite"></div>
+      <div class="chat-input">
+        <input id="introUserInput" type="text" placeholder="Escribí cómo te sentís…">
+        <button onclick="introSend()">Enviar</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Synaptica © 2025 – Salud mental sin barreras
+  </footer>
+
+<!-- =================  SCRIPTS  ================= -->
+<script>
+/* ---------- PORTADA ⇒ MAIN ---------- */
+
+function scrollToMain(){
+  const hero   = document.querySelector('.hero');
+  const nav    = document.getElementById('mainNav');
+  const header = document.getElementById('mainHeader');
+
+  hero.classList.add('ocultar-hero'); // Oculta portada con animación
+
+  setTimeout(()=>{
+    document.body.classList.remove('index');        // Habilita scroll
+    document.body.classList.add('mostrar-header');  // Muestra el header con fade
+    hero.remove();                                   // Elimina portada
+    nav.classList.add('show');                       // Muestra NAV solo después
+    document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
+  }, 800); // Coincide con el fadeOut de .hero
+}
+
+/* ---------- CHAT “INTRO” ---------- */
+const introChat = document.getElementById('introChatBox');
+
+function introPush(role, txt){
+  const msg = document.createElement('div');
+  msg.className = 'message fade';
+  msg.classList.add(role === 'user' ? 'user' : 'ia');
+  msg.textContent = txt;
+  introChat.appendChild(msg);
+  introChat.scrollTop = introChat.scrollHeight;
+  if(role === 'ia') hablar(txt);
+}
+
+introPush('ia','¿Cómo te sentís hoy? Contanos.');
+hablar('¿Cómo te sentís hoy? Contanos.');
+
+const routes=[
+  { re:/psicolog/i,                     href:'psicologo.html' },
+  { re:/relaja|medit|ansiedad|respira/i,href:'relajacion.html'},
+  { re:/ia|chat|conversa/i,             href:'chat.html'     },
+  { re:/ayuda|urgencia|hablar|contencion/i,href:'ayuda.html' }
+];
+
+function introSend(){
+  const box   = document.getElementById('introUserInput');
+  const texto = box.value.trim();
+  if(!texto) return;
+
+  introPush('user', texto);
+  box.value = '';
+
+  for(const r of routes){
+    if(r.re.test(texto)){
+      introPush('ia','¡Entendido! Te acompañamos allí…');
+      hablar('¡Entendido! Te acompañamos allí…');
+      setTimeout(()=>location.href=r.href,1200);
+      return;
+    }
+  }
+
+  // ✅ NUEVO: conexión con el backend de IA si no hay redirección
+  fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      messages: [
+        { role: "user", content: texto }
+      ]
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    introPush('ia', data.reply);
+  })
+  .catch(err => {
+    console.error(err);
+    introPush('ia', "Lo siento, hubo un error al conectarse con la IA.");
+  });
+}
+
+/* ---------- Dictado por voz ---------- */
+window.addEventListener('DOMContentLoaded',()=>{
+  const input  = document.getElementById('introUserInput');
+  const micBtn = document.createElement('button');
+  micBtn.textContent='🎤';
+  micBtn.style.cssText='padding:0 12px;font-size:18px;border:none;background:transparent;cursor:pointer';
+  input.parentNode.insertBefore(micBtn,input.nextSibling);
+
+  if('webkitSpeechRecognition' in window){
+    const recognition=new webkitSpeechRecognition();
+    recognition.lang='es-AR';
+    recognition.continuous=false;
+    recognition.interimResults=false;
+
+    micBtn.onclick=()=>{
+      recognition.start();
+      micBtn.textContent='🎙️';
+    };
+    recognition.onresult=e=>{
+      input.value=e.results[0][0].transcript;
+      micBtn.textContent='🎤';
+    };
+    recognition.onerror=()=>{ micBtn.textContent='🎤'; };
+  }else micBtn.style.display='none';
+});
+
+/* ---------- Síntesis de voz ---------- */
+function hablar(texto){
+  const voz=new SpeechSynthesisUtterance(texto);
+  voz.lang='es-AR';
+  speechSynthesis.speak(voz);
+}
+
+document.body.classList.add('mostrar-header');
+</script>
+</body>
+</html>

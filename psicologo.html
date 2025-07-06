@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Psicólogo - Synaptica</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .psico-section {
+      padding: 60px 20px;
+      max-width: 850px;
+      margin: auto;
+      text-align: center;
+      background: var(--verdeCard);
+      border-radius: 16px;
+      color: var(--textoClaro);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 1.2s ease;
+    }
+
+    .psico-section p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+    }
+
+    form label {
+      font-weight: bold;
+      color: var(--violetaClaro);
+    }
+
+    form input, form textarea {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background: #f8f8f8;
+      color: #333;
+    }
+
+    form textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    form button {
+      background: var(--violeta);
+      color: #fff;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      align-self: flex-start;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    form button:hover {
+      background: var(--violetaClaro);
+      color: var(--verdeOscuro);
+      transform: scale(1.05);
+    }
+
+    .psico-highlight {
+      font-weight: bold;
+      color: var(--violetaClaro);
+      font-size: 1.2rem;
+      margin-top: 40px;
+    }
+
+    #formStatus {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #b8f6ce;
+      background: #244b3d;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="ayuda.html">Ayuda</a>
+    <a href="chat.html">IA Especializada</a>
+    <a href="relajacion.html">Relajación</a>
+    <a href="psicologo.html">Psicólogo</a>
+  </nav>
+
+  <header>
+    <h1>Orientación Profesional</h1>
+    <p>Consejos con base psicológica y respaldo académico</p>
+  </header>
+
+  <section class="psico-section">
+    <p>Esta sección brinda <strong>orientación emocional</strong> respaldada por teorías psicológicas contemporáneas.</p>
+    <p>Podés consultarnos por temas como <em>ansiedad, autoestima, toma de decisiones, vínculos, organización personal</em> y más.</p>
+
+    <form id="consultaForm">
+      <label for="nombre">Nombre</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+
+      <label for="correo">Correo electrónico</label>
+      <input type="email" id="correo" name="correo" placeholder="ejemplo@mail.com" required>
+
+      <label for="motivo">¿En qué podemos ayudarte?</label>
+      <textarea id="motivo" name="motivo" placeholder="Contanos brevemente tu situación..." required></textarea>
+
+      <button type="submit">Enviar consulta</button>
+    </form>
+
+    <div id="formStatus">Gracias por tu mensaje. Te responderemos pronto.</div>
+
+    <p class="psico-highlight">Muy pronto podrás solicitar turno con un profesional desde esta sección.</p>
+  </section>
+
+  <script>
+    document.getElementById('consultaForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value;
+      const correo = document.getElementById('correo').value;
+      const motivo = document.getElementById('motivo').value;
+
+      // Simulación de envío al backend
+      try {
+        // Comentar estas 4 líneas si se conecta a un backend real
+        document.getElementById('formStatus').style.display = 'block';
+        this.reset();
+        return;
+
+        // Descomentar si tenés backend:
+        /*
+        const response = await fetch('https://TU_BACKEND_AQUI.com/formulario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, correo, motivo })
+        });
+
+        if (response.ok) {
+          document.getElementById('formStatus').textContent = "Gracias por tu mensaje. Te responderemos pronto.";
+        } else {
+          document.getElementById('formStatus').textContent = "Hubo un error al enviar tu mensaje.";
+        }
+        document.getElementById('formStatus').style.display = 'block';
+        this.reset();
+        */
+      } catch (error) {
+        document.getElementById('formStatus').textContent = "No se pudo enviar el mensaje. Intentalo más tarde.";
+        document.getElementById('formStatus').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

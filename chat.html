@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat con IA – Synaptica</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="ayuda.html">Ayuda</a>
+    <a href="chat.html" aria-current="page">IA Especializada</a>
+    <a href="relajacion.html">Relajación</a>
+    <a href="psicologo.html">Psicólogo</a>
+  </nav>
+
+  <header>
+    <h1>IA Especializada</h1>
+    <p>Conversá con Synaptica y sentí el apoyo real</p>
+  </header>
+
+  <section class="chat-section" id="chat">
+    <div id="chatBox" class="chat-box" aria-live="polite"></div>
+
+    <div class="chat-input">
+      <textarea id="userInput" rows="2" placeholder="Escribí cómo te sentís…"></textarea>
+      <button onclick="sendMessage()">Enviar</button>
+    </div>
+  </section>
+
+  <script>
+    const memory=[];
+    const greets=[
+      "Hola, soy Synaptica 🌱\nEstoy acá para escucharte.",
+      "¡Bienvenido! Soy Synaptica. Contame cómo te sentís.",
+      "Hola 👋 Soy tu acompañante emocional. ¿En qué puedo ayudarte hoy?"
+    ];
+    const chatBox=document.getElementById("chatBox");
+    pushMessage("ia",greets[Math.floor(Math.random()*greets.length)]);
+
+    function pushMessage(role,text){
+      const msg=document.createElement("div");
+      msg.className="message "+(role==="user"?"user":"ia");
+      msg.textContent=text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop=chatBox.scrollHeight;
+      memory.push({role:role==="user"?"user":"assistant",content:text});
+    }
+
+    async function sendMessage(){
+      const input=document.getElementById("userInput");
+      const message=input.value.trim();
+      if(!message) return;
+
+      pushMessage("user",message);input.value="";
+      const typing=document.createElement("div");typing.className="message ia";
+      typing.textContent="Synaptica está escribiendo…";chatBox.appendChild(typing);chatBox.scrollTop=chatBox.scrollHeight;
+
+      try{
+        const res=await fetch("https://synaptica-backend.replit.app/chat",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({messages:memory})
+        });
+        const data=await res.json();typing.remove();
+        pushMessage("ia",data.reply||"Sin respuesta del servidor.");
+      }catch(err){
+        typing.remove();pushMessage("ia","⚠️ Error al conectar con el servidor.");
+      }
+    }
+  </script>
+</body>
+</html>
