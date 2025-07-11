@@ -167,5 +167,4 @@ async function procesarEntrada(textoUsuario) {
 sendButton.addEventListener("click", () => {
   const textoUsuario = input.value.trim();
   procesarEntrada(textoUsuario);
-}););
 });
