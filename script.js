@@ -1,71 +1,106 @@
-const input = document.getElementById("user-input");
-const sendButton = document.getElementById("send-btn");
-const chatBox = document.getElementById("chat-box");
-const voiceToggle = document.getElementById("voice-toggle");
+const input = document.getElementById("userInput");
+const sendButton = document.querySelector("button[onclick='sendMessage()']");
+const chatBox = document.getElementById("chatBox");
+const voiceToggle = document.getElementById("vozToggle");
 
 let vozActivada = true;
+const memoria = [];
 
+// Cambiar texto del botón de voz
 if (voiceToggle) {
   voiceToggle.addEventListener("click", () => {
     vozActivada = !vozActivada;
-    voiceToggle.textContent = vozActivada ? "🔊 Voz activada" : "🔇 Voz desactivada";
+    voiceToggle.textContent = vozActivada ? "🔊 Voz ON" : "🔇 Voz OFF";
+    if (!vozActivada) speechSynthesis.cancel();
   });
 }
 
+// Mostrar mensaje en el chat
 function agregarMensaje(texto, clase) {
   const div = document.createElement("div");
   div.className = "message " + clase;
   div.textContent = texto;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (clase === "ia" && vozActivada) {
+    reproducirTexto(texto);
+  }
+
+  memoria.push({
+    role: clase === "user" ? "user" : "assistant",
+    content: texto
+  });
 }
 
+// Hablar en voz alta
 function reproducirTexto(texto) {
-  if (!vozActivada) return;
   const utterance = new SpeechSynthesisUtterance(texto);
   utterance.lang = "es-AR";
-  speechSynthesis.cancel(); // Cancela cualquier voz en curso
+  speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 }
 
-sendButton.addEventListener("click", async () => {
+// Enviar mensaje
+async function sendMessage() {
   const textoUsuario = input.value.trim();
   if (!textoUsuario) return;
 
   agregarMensaje(textoUsuario, "user");
   input.value = "";
 
-  // Detectar palabras clave
-  const lower = textoUsuario.toLowerCase();
-  if (lower.includes("psicólogo") || lower.includes("psicologo")) {
-    window.location.href = "psicologo.html";
+  // Detectar redirecciones por palabras clave
+  const texto = textoUsuario.toLowerCase();
+  if (/psic[oó]log/.test(texto)) {
+    agregarMensaje("Te acompaño a la sección de psicólogo…", "ia");
+    setTimeout(() => window.location.href = "psicologo.html", 1200);
     return;
   }
-  if (lower.includes("ayuda")) {
-    window.location.href = "ayuda.html";
+  if (/ayuda|urgencia|contenci[oó]n/.test(texto)) {
+    agregarMensaje("Vamos a la sección de ayuda urgente…", "ia");
+    setTimeout(() => window.location.href = "ayuda.html", 1200);
     return;
   }
-  if (lower.includes("hablar con alguien") || lower.includes("charlar") || lower.includes("necesito hablar")) {
-    window.location.href = "chat.html";
+  if (/relajaci[oó]n|ansiedad|meditaci[oó]n|respira/.test(texto)) {
+    agregarMensaje("Puedo guiarte a una actividad relajante…", "ia");
+    setTimeout(() => window.location.href = "relajacion.html", 1200);
     return;
   }
+
+  // Mostrar "escribiendo..."
+  const escribiendo = document.createElement("div");
+  escribiendo.className = "message ia";
+  escribiendo.textContent = "Synaptica está escribiendo…";
+  chatBox.appendChild(escribiendo);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
   try {
     const res = await fetch("https://TU-USUARIO.replit.dev/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [{ role: "user", content: textoUsuario }]
-      })
+      body: JSON.stringify({ messages: memoria })
     });
 
     const data = await res.json();
-    const respuestaIA = data.reply || "Lo siento, no entendí. ¿Podés repetirlo?";
+    escribiendo.remove();
+
+    let respuestaIA = data.reply || "Lo siento, no entendí. ¿Podés repetirlo?";
+
+    // Respuesta empática si detecta estados emocionales
+    if (/mal|triste|angustia|solo|ansiedad/.test(textoUsuario)) {
+      respuestaIA += "\nNo estás solo. Si necesitás hablar con alguien, estoy acá para ayudarte.";
+    }
 
     agregarMensaje(respuestaIA, "ia");
-    reproducirTexto(respuestaIA);
+
   } catch (err) {
-    agregarMensaje("⚠ Error al conectar con la IA", "ia");
+    escribiendo.remove();
+    agregarMensaje("⚠️ Error al conectar con la IA", "ia");
     console.error(err);
   }
-});
+}
+
+// Listeners alternativos si se importa el script externamente
+if (sendButton) {
+  sendButton.addEventListener("click", sendMessage);
+}
