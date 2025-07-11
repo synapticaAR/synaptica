@@ -6,6 +6,7 @@ const micButton = document.getElementById("mic-btn");
 
 let vozActivada = true;
 let primeraSesion = true;
+let hablando = false;
 
 // Alternar voz
 if (voiceToggle) {
@@ -14,6 +15,48 @@ if (voiceToggle) {
     voiceToggle.textContent = vozActivada ? "🔊 Voz ON" : "🔇 Voz OFF";
     if (!vozActivada) speechSynthesis.cancel();
   });
+}
+
+// Reconocimiento de voz
+if (micButton && "webkitSpeechRecognition" in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "es-AR";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  micButton.addEventListener("click", () => {
+    if (hablando) return;
+    hablando = true;
+    recognition.start();
+    micButton.textContent = "🎙️ Escuchando...";
+    micButton.disabled = true;
+  });
+
+  recognition.onresult = (event) => {
+    const result = event.results[0][0].transcript.trim();
+    input.value = result;
+    micButton.textContent = "🎤";
+    micButton.disabled = false;
+    hablando = false;
+
+    if (result) {
+      procesarEntrada(result);
+    }
+  };
+
+  recognition.onerror = () => {
+    micButton.textContent = "🎤";
+    micButton.disabled = false;
+    hablando = false;
+  };
+
+  recognition.onend = () => {
+    if (hablando) {
+      micButton.textContent = "🎤";
+      micButton.disabled = false;
+      hablando = false;
+    }
+  };
 }
 
 // Agregar mensaje al chat
@@ -25,94 +68,70 @@ function agregarMensaje(texto, clase) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   if (clase === "ia" && vozActivada) {
-    reproducirVoz(texto);
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = "es-AR";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
   }
 }
 
-// Reproducir voz solo si está activada
-function reproducirVoz(texto) {
-  if (!vozActivada) return;
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(texto);
-  utterance.lang = "es-AR";
-  speechSynthesis.speak(utterance);
-}
-
-// Reconocimiento de voz
-if (micButton && "webkitSpeechRecognition" in window) {
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "es-AR";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
-  micButton.addEventListener("click", () => {
-    recognition.start();
-    micButton.textContent = "🎤 Escuchando...";
-  });
-
-  recognition.onresult = (event) => {
-    const result = event.results[0][0].transcript.trim();
-    micButton.textContent = "🎤";
-    input.value = result;
-    procesarEntrada(result); // Proceso directo lo dicho
-  };
-
-  recognition.onerror = () => {
-    micButton.textContent = "🎤";
-  };
-
-  recognition.onend = () => {
-    micButton.textContent = "🎤";
-  };
-}
-
-// Detectar palabras clave críticas
+// Detectar palabras clave y redireccionar
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
   if (lower.includes("psicólogo") || lower.includes("psicologo") || lower.includes("terapia")) {
     if (primeraSesion) {
-      agregarMensaje("Te llevamos con un psicólogo para tu primera sesión gratuita.", "ia");
+      agregarMensaje("Entiendo que necesitás hablar con un psicólogo. Te derivamos a tu primera sesión gratuita.", "ia");
       primeraSesion = false;
     } else {
-      agregarMensaje("Ya usaste tu sesión gratuita. Podés hablar con nuestra IA especializada.", "ia");
-      setTimeout(() => window.location.href = "chat.html", 2000);
+      agregarMensaje("Ya usaste tu sesión gratuita. Podés hablar con nuestra IA especializada o agendar otra sesión paga.", "ia");
+      setTimeout(() => window.location.href = "chat.html", 3000);
       return true;
     }
-    setTimeout(() => window.location.href = "psicologo.html", 2000);
+    setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
-  if (lower.includes("ayuda") || lower.includes("urgente") || lower.includes("emergencia") || lower.includes("hablar con alguien")) {
-    agregarMensaje("Te redirigimos a la sección de ayuda inmediata.", "ia");
-    setTimeout(() => window.location.href = "ayuda.html", 2000);
+  if (lower.includes("ayuda") || lower.includes("urgente") || lower.includes("emergencia") || lower.includes("contención")) {
+    agregarMensaje("Te redirigimos a ayuda inmediata. Dejanos ayudarte…", "ia");
+    setTimeout(() => window.location.href = "ayuda.html", 3000);
     return true;
   }
 
-  if (lower.includes("relajación") || lower.includes("respirar") || lower.includes("ansiedad")) {
-    agregarMensaje("Vamos a la sección de relajación. Respirá hondo, todo va a estar bien.", "ia");
-    setTimeout(() => window.location.href = "relajacion.html", 2000);
+  if (lower.includes("relajación") || lower.includes("relajar") || lower.includes("respirar") || lower.includes("ansiedad")) {
+    agregarMensaje("Te recomiendo visitar nuestra sección de relajación. Vas a estar bien.", "ia");
+    setTimeout(() => window.location.href = "relajacion.html", 3000);
     return true;
   }
 
-  if (lower.includes("me siento mal") || lower.includes("necesito hablar") || lower.includes("charlar")) {
-    agregarMensaje("Entiendo cómo te sentís. Te recomiendo hablar con nuestro psicólogo.", "ia");
-    setTimeout(() => window.location.href = "psicologo.html", 2000);
+  if (
+    lower.includes("me siento mal") ||
+    lower.includes("no sé qué hacer") ||
+    lower.includes("hace algo") ||
+    lower.includes("necesito ayuda")
+  ) {
+    if (primeraSesion) {
+      agregarMensaje("Te entiendo. Te voy a derivar con un psicólogo para que tengas tu primera sesión gratuita.", "ia");
+      primeraSesion = false;
+      setTimeout(() => window.location.href = "psicologo.html", 3000);
+    } else {
+      agregarMensaje("Ya hiciste tu primera sesión gratuita. Podés hablar con nuestra IA especializada o ver opciones pagas.", "ia");
+      setTimeout(() => window.location.href = "chat.html", 3000);
+    }
     return true;
   }
 
   return false;
 }
 
-// Procesar texto (voz o texto escrito)
+// Procesar texto del usuario
 async function procesarEntrada(textoUsuario) {
-  const texto = textoUsuario.trim();
-  if (!texto) return;
+  if (!textoUsuario.trim()) return;
 
-  agregarMensaje(texto, "user");
+  agregarMensaje(textoUsuario, "user");
   input.value = "";
 
-  if (manejarRedireccion(texto)) return;
+  if (manejarRedireccion(textoUsuario)) return;
 
   const typing = document.createElement("div");
   typing.className = "message ia";
@@ -125,16 +144,15 @@ async function procesarEntrada(textoUsuario) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        messages: [{ role: "user", content: texto }]
+        messages: [{ role: "user", content: textoUsuario }]
       })
     });
 
     const data = await res.json();
     typing.remove();
 
-    let respuestaIA = data.reply || "Lo siento, no entendí. ¿Querés repetirlo?";
+    let respuestaIA = data.reply || "Lo siento, no entendí. ¿Podés repetirlo?";
 
-    // Antibug idioma/respuesta incoherente
     if (/portugu/i.test(respuestaIA) || /(sou|estou|psic[oó]logo)/i.test(respuestaIA)) {
       respuestaIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
     }
@@ -142,13 +160,14 @@ async function procesarEntrada(textoUsuario) {
     agregarMensaje(respuestaIA, "ia");
   } catch (err) {
     typing.remove();
-    agregarMensaje("⚠ Error al conectar con la IA", "ia");
+    agregarMensaje("⚠️ Error al conectar con el servidor", "ia");
     console.error(err);
   }
 }
 
-// Evento de botón enviar
+// Enviar mensaje al hacer click
 sendButton.addEventListener("click", () => {
   const textoUsuario = input.value.trim();
   procesarEntrada(textoUsuario);
+});
 });
