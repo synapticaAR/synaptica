@@ -26,12 +26,13 @@
 
     <div class="chat-input">
       <textarea id="userInput" rows="2" placeholder="Escribí cómo te sentís…"></textarea>
-      <button onclick="sendMessage()">Enviar</button>
-      <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
+      <button id="send-btn">Enviar</button>
+      <button id="vozToggle">🔊 Voz ON</button>
+      <button id="mic-btn">🎤</button>
     </div>
   </section>
 
-  <!-- SCRIPT ORIGINAL DEL CHAT (NO TOCADO) -->
+  <!-- SCRIPT ORIGINAL DEL CHAT -->
   <script>
     const memory = [];
     const chatBox = document.getElementById("chatBox");
@@ -98,12 +99,10 @@
         typing.remove();
         let textoIA = data.reply || "Sin respuesta del servidor.";
 
-        // Corrección idioma
         if (/^(sou|estou|psic[oó]logo|psic[oó]loga)/i.test(textoIA) && /portugu/i.test(textoIA)) {
           textoIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
         }
 
-        // Mensaje empático si hay tristeza
         if (/mal|ansiedad|triste|angustia|solo/i.test(message)) {
           textoIA += "\nNo estás solo. Si necesitás hablar con alguien, puedo ayudarte.";
         }
@@ -129,6 +128,9 @@
       if (!vozActiva) speechSynthesis.cancel();
     }
   </script>
+
+  <!-- SCRIPT PARA VOZ Y MICRÓFONO (EXTERNO) -->
+  <script src="script.js"></script>
 
 </body>
 </html>
