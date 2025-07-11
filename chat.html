@@ -31,6 +31,7 @@
     </div>
   </section>
 
+  <!-- SCRIPT ORIGINAL DEL CHAT (NO TOCADO) -->
   <script>
     const memory = [];
     const chatBox = document.getElementById("chatBox");
@@ -97,14 +98,14 @@
         typing.remove();
         let textoIA = data.reply || "Sin respuesta del servidor.";
 
-        // Corrección si responde en idioma incorrecto
-        if (/^.*(sou|estou|psicólogo|psicologa).*/i.test(textoIA) && /portugu/i.test(textoIA)) {
+        // Corrección idioma
+        if (/^(sou|estou|psic[oó]logo|psic[oó]loga)/i.test(textoIA) && /portugu/i.test(textoIA)) {
           textoIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
         }
 
-        // Más cálido si detecta tristeza o ansiedad
+        // Mensaje empático si hay tristeza
         if (/mal|ansiedad|triste|angustia|solo/i.test(message)) {
-          textoIA += "\nNo estás solo. Si necesitás hablar con un profesional, puedo llevarte ahora.";
+          textoIA += "\nNo estás solo. Si necesitás hablar con alguien, puedo ayudarte.";
         }
 
         pushMessage("ia", textoIA);
@@ -128,5 +129,6 @@
       if (!vozActiva) speechSynthesis.cancel();
     }
   </script>
+
 </body>
 </html>
