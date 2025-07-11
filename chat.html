@@ -27,50 +27,105 @@
     <div class="chat-input">
       <textarea id="userInput" rows="2" placeholder="Escribí cómo te sentís…"></textarea>
       <button onclick="sendMessage()">Enviar</button>
+      <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
     </div>
   </section>
 
   <script>
-    const memory=[];
-    const greets=[
+    const memory = [];
+    const chatBox = document.getElementById("chatBox");
+    let vozActiva = true;
+
+    const rutas = [
+      { re: /psicolog/i, href: "psicologo.html" },
+      { re: /ayuda|urgencia|hablar|contencion/i, href: "ayuda.html" },
+      { re: /relaja|ansiedad|respira|medit/i, href: "relajacion.html" },
+      { re: /chat|ia|conversa/i, href: "chat.html" }
+    ];
+
+    const saludos = [
       "Hola, soy Synaptica 🌱\nEstoy acá para escucharte.",
       "¡Bienvenido! Soy Synaptica. Contame cómo te sentís.",
       "Hola 👋 Soy tu acompañante emocional. ¿En qué puedo ayudarte hoy?"
     ];
-    const chatBox=document.getElementById("chatBox");
-    pushMessage("ia",greets[Math.floor(Math.random()*greets.length)]);
 
-    function pushMessage(role,text){
-      const msg=document.createElement("div");
-      msg.className="message "+(role==="user"?"user":"ia");
-      msg.textContent=text;
+    pushMessage("ia", saludos[Math.floor(Math.random() * saludos.length)]);
+
+    function pushMessage(role, text) {
+      const msg = document.createElement("div");
+      msg.className = "message " + (role === "user" ? "user" : "ia");
+      msg.textContent = text;
       chatBox.appendChild(msg);
-      chatBox.scrollTop=chatBox.scrollHeight;
-      memory.push({role:role==="user"?"user":"assistant",content:text});
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      if (role === "ia" && vozActiva) hablar(text);
+      memory.push({ role: role === "user" ? "user" : "assistant", content: text });
     }
 
-    async function sendMessage(){
-      const input=document.getElementById("userInput");
-      const message=input.value.trim();
-      if(!message) return;
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
 
-      pushMessage("user",message);input.value="";
-      const typing=document.createElement("div");typing.className="message ia";
-      typing.textContent="Synaptica está escribiendo…";chatBox.appendChild(typing);chatBox.scrollTop=chatBox.scrollHeight;
+      pushMessage("user", message);
+      input.value = "";
 
-      try{
-        const res = await fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ messages: memory })
-});
-        const data=await res.json();typing.remove();
-        pushMessage("ia",data.reply||"Sin respuesta del servidor.");
-      }catch(err){
-        typing.remove();pushMessage("ia","⚠️ Error al conectar con el servidor.");
+      for (const r of rutas) {
+        if (r.re.test(message)) {
+          pushMessage("ia", "Entiendo cómo te sentís. Te acompaño...");
+          setTimeout(() => location.href = r.href, 1000);
+          return;
+        }
       }
+
+      const typing = document.createElement("div");
+      typing.className = "message ia";
+      typing.textContent = "Synaptica está escribiendo…";
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ messages: memory })
+        });
+
+        const data = await res.json();
+        typing.remove();
+        let textoIA = data.reply || "Sin respuesta del servidor.";
+
+        // Corrección si responde en idioma incorrecto
+        if (/^.*(sou|estou|psicólogo|psicologa).*/i.test(textoIA) && /portugu/i.test(textoIA)) {
+          textoIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
+        }
+
+        // Más cálido si detecta tristeza o ansiedad
+        if (/mal|ansiedad|triste|angustia|solo/i.test(message)) {
+          textoIA += "\nNo estás solo. Si necesitás hablar con un profesional, puedo llevarte ahora.";
+        }
+
+        pushMessage("ia", textoIA);
+
+      } catch (err) {
+        typing.remove();
+        pushMessage("ia", "⚠️ Error al conectar con el servidor.");
+      }
+    }
+
+    function hablar(texto) {
+      const voz = new SpeechSynthesisUtterance(texto);
+      voz.lang = "es-AR";
+      speechSynthesis.speak(voz);
+    }
+
+    function toggleVoz() {
+      vozActiva = !vozActiva;
+      const btn = document.getElementById("vozToggle");
+      btn.textContent = vozActiva ? "🔊 Voz ON" : "🔇 Voz OFF";
+      if (!vozActiva) speechSynthesis.cancel();
     }
   </script>
 </body>
