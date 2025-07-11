@@ -5,13 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Synaptica</title>
 
-  <!--  hoja de estilos externa  -->
   <link rel="stylesheet" href="styles.css">
-
-  <!--  fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!--  animación para ocultar la portada -->
   <style>
     .ocultar-hero {
       opacity: 0;
@@ -54,6 +50,7 @@
       <div class="chat-input">
         <input id="introUserInput" type="text" placeholder="Escribí cómo te sentís…">
         <button onclick="introSend()">Enviar</button>
+        <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
       </div>
     </div>
   </section>
@@ -62,37 +59,33 @@
     Synaptica © 2025 – Salud mental sin barreras
   </footer>
 
-<!-- =================  SCRIPTS  ================= -->
 <script>
-/* ---------- PORTADA ⇒ MAIN ---------- */
-
 function scrollToMain(){
   const hero   = document.querySelector('.hero');
   const nav    = document.getElementById('mainNav');
   const header = document.getElementById('mainHeader');
 
-  hero.classList.add('ocultar-hero'); // Oculta portada con animación
+  hero.classList.add('ocultar-hero');
 
   setTimeout(()=>{
-    document.body.classList.remove('index');        // Habilita scroll
-    document.body.classList.add('mostrar-header');  // Muestra el header con fade
-    hero.remove();                                   // Elimina portada
-    nav.classList.add('show');                       // Muestra NAV solo después
+    document.body.classList.remove('index');
+    document.body.classList.add('mostrar-header');
+    hero.remove();
+    nav.classList.add('show');
     document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
-  }, 800); // Coincide con el fadeOut de .hero
+  }, 800);
 }
 
-/* ---------- CHAT “INTRO” ---------- */
 const introChat = document.getElementById('introChatBox');
+let vozActiva = true;
 
 function introPush(role, txt){
   const msg = document.createElement('div');
-  msg.className = 'message fade';
-  msg.classList.add(role === 'user' ? 'user' : 'ia');
+  msg.className = 'message fade ' + (role === 'user' ? 'user' : 'ia');
   msg.textContent = txt;
   introChat.appendChild(msg);
   introChat.scrollTop = introChat.scrollHeight;
-  if(role === 'ia') hablar(txt);
+  if(role === 'ia' && vozActiva) hablar(txt);
 }
 
 introPush('ia','¿Cómo te sentís hoy? Contanos.');
@@ -122,21 +115,24 @@ function introSend(){
     }
   }
 
-  // ✅ NUEVO: conexión con el backend de IA si no hay redirección
   fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      messages: [
-        { role: "user", content: texto }
-      ]
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages: [ { role: "user", content: texto } ] })
   })
   .then(res => res.json())
   .then(data => {
-    introPush('ia', data.reply);
+    let respuesta = data.reply || "Sin respuesta del servidor.";
+
+    if (/^.*(sou|estou|psicólogo|psicologa).*/i.test(respuesta) && /portugu/i.test(respuesta)) {
+      respuesta = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
+    }
+
+    if (/mal|ansiedad|triste|angustia|solo/i.test(texto)) {
+      respuesta += "\nNo estás solo. Si necesitás hablar con un profesional, puedo llevarte ahora.";
+    }
+
+    introPush('ia', respuesta);
   })
   .catch(err => {
     console.error(err);
@@ -144,7 +140,6 @@ function introSend(){
   });
 }
 
-/* ---------- Dictado por voz ---------- */
 window.addEventListener('DOMContentLoaded',()=>{
   const input  = document.getElementById('introUserInput');
   const micBtn = document.createElement('button');
@@ -170,11 +165,18 @@ window.addEventListener('DOMContentLoaded',()=>{
   }else micBtn.style.display='none';
 });
 
-/* ---------- Síntesis de voz ---------- */
 function hablar(texto){
+  if (!vozActiva) return;
   const voz=new SpeechSynthesisUtterance(texto);
   voz.lang='es-AR';
   speechSynthesis.speak(voz);
+}
+
+function toggleVoz(){
+  vozActiva = !vozActiva;
+  const btn = document.getElementById('vozToggle');
+  btn.textContent = vozActiva ? '🔊 Voz ON' : '🔇 Voz OFF';
+  if (!vozActiva) speechSynthesis.cancel();
 }
 
 document.body.classList.add('mostrar-header');
