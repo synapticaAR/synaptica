@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chat con IA – Synaptica</title>
-  <link rel="icon" href="favicon.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <nav>
@@ -27,12 +27,11 @@
     <div class="chat-input">
       <textarea id="userInput" rows="2" placeholder="Escribí cómo te sentís…"></textarea>
       <button id="send-btn">Enviar</button>
-      <button id="vozToggle">🔊 Voz ON</button>
+      <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
       <button id="mic-btn">🎤</button>
     </div>
   </section>
 
-  <!-- SCRIPT ORIGINAL DEL CHAT -->
   <script>
     const memory = [];
     const chatBox = document.getElementById("chatBox");
@@ -99,12 +98,15 @@
         typing.remove();
         let textoIA = data.reply || "Sin respuesta del servidor.";
 
+        // Corrección si responde en portugués
         if (/^(sou|estou|psic[oó]logo|psic[oó]loga)/i.test(textoIA) && /portugu/i.test(textoIA)) {
           textoIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
         }
 
-        if (/mal|ansiedad|triste|angustia|solo/i.test(message)) {
-          textoIA += "\nNo estás solo. Si necesitás hablar con alguien, puedo ayudarte.";
+        // Frases relacionadas a malestar emocional
+        if (/mal|ansiedad|triste|angustia|solo|no sé qué hacer/i.test(message)) {
+          textoIA = "Entiendo cómo te sentís. ¿Querés hablar con un psicólogo? Podés tener tu primera sesión gratuita.";
+          setTimeout(() => location.href = "psicologo.html", 3000);
         }
 
         pushMessage("ia", textoIA);
@@ -116,6 +118,7 @@
     }
 
     function hablar(texto) {
+      speechSynthesis.cancel();
       const voz = new SpeechSynthesisUtterance(texto);
       voz.lang = "es-AR";
       speechSynthesis.speak(voz);
@@ -127,10 +130,11 @@
       btn.textContent = vozActiva ? "🔊 Voz ON" : "🔇 Voz OFF";
       if (!vozActiva) speechSynthesis.cancel();
     }
+
+    document.getElementById("send-btn").addEventListener("click", sendMessage);
   </script>
 
-  <!-- SCRIPT PARA VOZ Y MICRÓFONO (EXTERNO) -->
+  <!-- Script de voz y micrófono externo -->
   <script src="script.js"></script>
-
 </body>
 </html>
