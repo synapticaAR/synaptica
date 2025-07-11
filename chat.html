@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat con IA – Synaptica</title>
-  <link rel="icon" href="favicon.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <nav>
@@ -27,21 +27,24 @@
     <div class="chat-input">
       <textarea id="userInput" rows="2" placeholder="Escribí cómo te sentís…"></textarea>
       <button id="send-btn">Enviar</button>
-      <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
+      <button id="vozToggle">🔊 Voz ON</button>
       <button id="mic-btn">🎤</button>
     </div>
   </section>
 
+  <!-- SCRIPT PRINCIPAL DEL CHAT -->
   <script>
     const memory = [];
     const chatBox = document.getElementById("chatBox");
+    const sendBtn = document.getElementById("send-btn");
+    const vozToggle = document.getElementById("vozToggle");
     let vozActiva = true;
 
     const rutas = [
-      { re: /psicolog/i, href: "psicologo.html" },
-      { re: /ayuda|urgencia|hablar|contencion/i, href: "ayuda.html" },
-      { re: /relaja|ansiedad|respira|medit/i, href: "relajacion.html" },
-      { re: /chat|ia|conversa/i, href: "chat.html" }
+      { re: /psic[oó]log/i, href: "psicologo.html" },
+      { re: /ayuda|urgencia|contenci[oó]n|hablar con alguien/i, href: "ayuda.html" },
+      { re: /relaja|respira|medita|ansiedad/i, href: "relajacion.html" },
+      { re: /chat|ia|convers/i, href: "chat.html" }
     ];
 
     const saludos = [
@@ -58,7 +61,6 @@
       msg.textContent = text;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
-
       if (role === "ia" && vozActiva) hablar(text);
       memory.push({ role: role === "user" ? "user" : "assistant", content: text });
     }
@@ -88,9 +90,7 @@
       try {
         const res = await fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: memory })
         });
 
@@ -98,14 +98,12 @@
         typing.remove();
         let textoIA = data.reply || "Sin respuesta del servidor.";
 
-        // Corrección si responde en portugués
         if (/^(sou|estou|psic[oó]logo|psic[oó]loga)/i.test(textoIA) && /portugu/i.test(textoIA)) {
           textoIA = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
         }
 
-        // Frases relacionadas a malestar emocional
-        if (/mal|ansiedad|triste|angustia|solo|no sé qué hacer/i.test(message)) {
-          textoIA = "Entiendo cómo te sentís. ¿Querés hablar con un psicólogo? Podés tener tu primera sesión gratuita.";
+        if (/mal|triste|ansiedad|angustia|depre|solo/i.test(message)) {
+          textoIA = "Entiendo cómo te sentís. Podemos ayudarte.";
           setTimeout(() => location.href = "psicologo.html", 3000);
         }
 
@@ -118,23 +116,23 @@
     }
 
     function hablar(texto) {
-      speechSynthesis.cancel();
+      if (!vozActiva) return;
       const voz = new SpeechSynthesisUtterance(texto);
       voz.lang = "es-AR";
+      speechSynthesis.cancel(); // Evita superposiciones
       speechSynthesis.speak(voz);
     }
 
     function toggleVoz() {
       vozActiva = !vozActiva;
-      const btn = document.getElementById("vozToggle");
-      btn.textContent = vozActiva ? "🔊 Voz ON" : "🔇 Voz OFF";
+      vozToggle.textContent = vozActiva ? "🔊 Voz ON" : "🔇 Voz OFF";
       if (!vozActiva) speechSynthesis.cancel();
     }
 
-    document.getElementById("send-btn").addEventListener("click", sendMessage);
+    sendBtn.addEventListener("click", sendMessage);
   </script>
 
-  <!-- Script de voz y micrófono externo -->
+  <!-- SCRIPT EXTERNO PARA MICRÓFONO -->
   <script src="script.js"></script>
 </body>
 </html>
