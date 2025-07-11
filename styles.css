@@ -267,3 +267,21 @@ body:not(.index) {
 .message {
   animation: fadeInMessage 0.5s ease;
 }
+
+/* BOTÓN DE VOZ 🔊 / 🔇 */
+#toggleVoiceBtn {
+  background: #fff;
+  color: #3b5bfc;
+  border: 1px solid #3b5bfc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#toggleVoiceBtn:hover {
+  background: #3b5bfc;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 91, 252, 0.2);
+}
