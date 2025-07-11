@@ -26,16 +26,26 @@ if (micButton && "webkitSpeechRecognition" in window) {
   micButton.addEventListener("click", () => {
     recognition.start();
     micButton.textContent = "🎤 Escuchando...";
+    micButton.style.backgroundColor = "#3cb371"; // Verde cuando escucha
   });
 
   recognition.onresult = (event) => {
-    const result = event.results[0][0].transcript;
+    const result = event.results[0][0].transcript.trim();
     input.value = result;
     micButton.textContent = "🎤";
+    micButton.style.backgroundColor = ""; // Vuelve al color original
+    recognition.stop();
+    sendButton.click();
+  };
+
+  recognition.onend = () => {
+    micButton.textContent = "🎤";
+    micButton.style.backgroundColor = "";
   };
 
   recognition.onerror = () => {
     micButton.textContent = "🎤";
+    micButton.style.backgroundColor = "";
   };
 }
 
@@ -72,19 +82,19 @@ function manejarRedireccion(texto) {
     return true;
   }
 
-  if (lower.includes("ayuda") || lower.includes("urgente") || lower.includes("emergencia")) {
+  if (lower.includes("ayuda") || lower.includes("urgente") || lower.includes("emergencia") || lower.includes("hablar con alguien")) {
     agregarMensaje("Te redirigimos al equipo de ayuda inmediata. Dejanos ayudarte...", "ia");
     setTimeout(() => window.location.href = "ayuda.html", 3000);
     return true;
   }
 
-  if (lower.includes("relajación") || lower.includes("respirar") || lower.includes("ansiedad")) {
+  if (lower.includes("relajación") || lower.includes("respirar") || lower.includes("ansiedad") || lower.includes("estresado")) {
     agregarMensaje("Te recomiendo visitar nuestra sección de relajación. Vas a estar bien.", "ia");
     setTimeout(() => window.location.href = "relajacion.html", 3000);
     return true;
   }
 
-  if (lower.includes("necesito hablar") || lower.includes("me siento mal") || lower.includes("charlar")) {
+  if (lower.includes("necesito hablar") || lower.includes("me siento mal") || lower.includes("charlar") || lower.includes("no sé qué hacer")) {
     agregarMensaje("Estoy acá para escucharte. ¿Querés que te lleve con nuestro psicólogo o preferís hablar conmigo?", "ia");
     return false;
   }
@@ -109,7 +119,7 @@ sendButton.addEventListener("click", async () => {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   try {
-    const res = await fetch("https://TU-USUARIO.replit.dev/chat", {
+    const res = await fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
