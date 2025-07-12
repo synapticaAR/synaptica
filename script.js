@@ -5,8 +5,8 @@ const voiceToggle = document.getElementById("vozToggle");
 const micButton = document.getElementById("mic-btn");
 
 let vozActivada = true;
-let primeraSesion = true;
 let reconocimientoActivo = false;
+let primeraSesion = localStorage.getItem("primeraSesion") !== "false"; // Recordar entre sesiones
 
 // Alternar voz
 if (voiceToggle) {
@@ -38,7 +38,7 @@ if (micButton && "webkitSpeechRecognition" in window) {
     micButton.textContent = "🎤";
     micButton.disabled = false;
     reconocimientoActivo = false;
-    recognition.stop(); // ✅ apagamos manualmente por seguridad
+    recognition.stop();
 
     if (result) procesarEntrada(result);
   };
@@ -47,7 +47,7 @@ if (micButton && "webkitSpeechRecognition" in window) {
     micButton.textContent = "🎤";
     micButton.disabled = false;
     reconocimientoActivo = false;
-    recognition.stop(); // ✅ nos aseguramos de detenerlo
+    recognition.stop();
   };
 
   recognition.onend = () => {
@@ -68,7 +68,7 @@ function agregarMensaje(texto, clase) {
   if (clase === "ia" && vozActivada) {
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = "es-AR";
-    speechSynthesis.cancel(); // ✅ aseguramos que no se repita
+    speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
   }
 }
@@ -77,16 +77,22 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  if (lower.includes("psicólogo") || lower.includes("terapia")) {
+  if (
+    lower.includes("me siento mal") ||
+    lower.includes("necesito ayuda") ||
+    lower.includes("no doy más") ||
+    lower.includes("nadie me quiere") ||
+    lower.includes("estoy solo")
+  ) {
     if (primeraSesion) {
-      agregarMensaje("Te derivamos a tu primera sesión gratuita con un psicólogo.", "ia");
+      agregarMensaje("Veo que estás mal. Te paso con un psicólogo para tu primera sesión gratuita.", "ia");
       primeraSesion = false;
+      localStorage.setItem("primeraSesion", "false");
+      setTimeout(() => window.location.href = "psicologo.html", 3000);
     } else {
-      agregarMensaje("Ya usaste tu sesión gratuita. Podés hablar con nuestra IA o agendar una sesión paga.", "ia");
-      setTimeout(() => window.location.href = "chat.html", 3000);
-      return true;
+      agregarMensaje("Ya usaste tu sesión gratuita. Podemos derivarte con ayuda urgente o seguir por el chat.", "ia");
+      setTimeout(() => window.location.href = "ayuda.html", 3000);
     }
-    setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
@@ -96,26 +102,24 @@ function manejarRedireccion(texto) {
     return true;
   }
 
-  if (lower.includes("relajación") || lower.includes("respirar") || lower.includes("ansiedad") || lower.includes("estresado")) {
-    agregarMensaje("Te llevo a la sección de relajación para que respires y te calmes…", "ia");
-    setTimeout(() => window.location.href = "relajacion.html", 3000);
+  if (lower.includes("psicólogo") || lower.includes("terapia")) {
+    if (primeraSesion) {
+      agregarMensaje("Te derivamos a tu primera sesión gratuita con un psicólogo.", "ia");
+      primeraSesion = false;
+      localStorage.setItem("primeraSesion", "false");
+    } else {
+      agregarMensaje("Ya usaste tu sesión gratuita. Podés hablar con nuestra IA o agendar una sesión paga.", "ia");
+    }
+    setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
   if (
-    lower.includes("me siento mal") ||
-    lower.includes("no sé qué hacer") ||
-    lower.includes("hace algo") ||
-    lower.includes("necesito ayuda")
+    lower.includes("relajación") || lower.includes("respirar") ||
+    lower.includes("ansiedad") || lower.includes("estresado")
   ) {
-    if (primeraSesion) {
-      agregarMensaje("Veo que estás mal. Te paso con un psicólogo para tu primera sesión gratuita.", "ia");
-      primeraSesion = false;
-      setTimeout(() => window.location.href = "psicologo.html", 3000);
-    } else {
-      agregarMensaje("Ya tuviste tu primera sesión. Podés hablar con nuestra IA especializada o contratar otra sesión.", "ia");
-      setTimeout(() => window.location.href = "chat.html", 3000);
-    }
+    agregarMensaje("Te llevo a la sección de relajación para que respires y te calmes…", "ia");
+    setTimeout(() => window.location.href = "relajacion.html", 3000);
     return true;
   }
 
