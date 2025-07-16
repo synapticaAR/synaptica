@@ -68,13 +68,15 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  if (lower.includes("psicólogo") || lower.includes("terapia")) {
-    if (primeraSesion) {
-      agregarMensaje("Te derivamos a tu primera sesión gratuita con un psicólogo humano.", "ia");
-      primeraSesion = false;
-    } else {
-      agregarMensaje("Ya usaste tu sesión gratuita. Podés hablar con la IA o agendar una sesión paga.", "ia");
-    }
+  if (
+    lower.includes("psicólogo") || 
+    lower.includes("psicologo") || 
+    lower.includes("psicologa") || 
+    lower.includes("profesional") || 
+    lower.includes("terapia") || 
+    lower.includes("necesito hablar con alguien")
+  ) {
+    agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
     setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
@@ -95,13 +97,8 @@ function manejarRedireccion(texto) {
     lower.includes("estoy solo") ||
     lower.includes("nadie me quiere")
   ) {
-    if (primeraSesion) {
-      agregarMensaje("Veo que estás mal. Te paso con un psicólogo para tu primera sesión gratuita.", "ia");
-      primeraSesion = false;
-      setTimeout(() => window.location.href = "psicologo.html", 3000);
-    } else {
-      agregarMensaje("Ya tuviste tu primera sesión. Podés hablar con nuestra IA especializada o agendar otra.", "ia");
-    }
+    agregarMensaje("Veo que estás mal. Te paso con un psicólogo para tu primera sesión gratuita.", "ia");
+    setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
@@ -109,10 +106,23 @@ function manejarRedireccion(texto) {
     lower.includes("relajación") ||
     lower.includes("ansiedad") ||
     lower.includes("respirar") ||
-    lower.includes("estresado")
+    lower.includes("estresado") ||
+    lower.includes("relajarme")
   ) {
     agregarMensaje("Te llevo a la sección de relajación para calmarte…", "ia");
     setTimeout(() => window.location.href = "relajacion.html", 3000);
+    return true;
+  }
+
+  if (
+    lower.includes("ia") ||
+    lower.includes("chat") ||
+    lower.includes("conversar") ||
+    lower.includes("inteligencia artificial") ||
+    lower.includes("hablar con la ia")
+  ) {
+    agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
+    setTimeout(() => window.location.href = "chat.html", 3000);
     return true;
   }
 
