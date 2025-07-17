@@ -324,6 +324,8 @@ body.index nav {
   display: none !important;
 }
 
+/* === ESTILOS PARA RECONOCIMIENTO DE VOZ === */
+
 #voice-container {
   display: flex;
   align-items: center;
@@ -332,13 +334,17 @@ body.index nav {
 }
 
 #mic-btn {
-  background: #3B5BFC;
+  background: var(--acento);
   border: none;
   border-radius: 50%;
-  padding: 10px;
-  cursor: pointer;
+  width: 42px;
+  height: 42px;
   color: white;
-  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 #mic-btn.listening {
@@ -346,17 +352,18 @@ body.index nav {
 }
 
 #mic-btn svg {
-  display: block;
+  width: 20px;
+  height: 20px;
 }
 
 #listening-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #f0f0f0;
+  background: var(--grisSuave);
   padding: 8px 12px;
   border-radius: 8px;
-  animation: fadeIn 0.3s ease-in;
+  margin-top: 12px;
 }
 
 .hidden {
@@ -364,16 +371,16 @@ body.index nav {
 }
 
 .voice-wave {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  background: var(--acento);
   border-radius: 50%;
-  background: #3B5BFC;
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
   0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
+  50% { transform: scale(1.4); opacity: 0.5; }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -382,13 +389,8 @@ body.index nav {
   border: none;
   font-size: 18px;
   cursor: pointer;
-  color: #333;
+  color: #555;
 }
 
 #send-btn-voice:hover { color: green; }
 #cancel-btn-voice:hover { color: red; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
