@@ -5,7 +5,6 @@ const voiceToggle = document.getElementById("vozToggle");
 const micButton = document.getElementById("mic-btn");
 
 let vozActivada = true;
-let primeraSesion = true;
 let reconocimientoActivo = false;
 
 // Alternar voz
@@ -64,65 +63,37 @@ function agregarMensaje(texto, clase) {
   }
 }
 
-// Lógica de redirección emocional
+// Lógica de redirección emocional priorizada
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  if (
-    lower.includes("psicólogo") || 
-    lower.includes("psicologo") || 
-    lower.includes("psicologa") || 
-    lower.includes("profesional") || 
-    lower.includes("terapia") || 
-    lower.includes("necesito hablar con alguien")
-  ) {
+  if (lower.includes("psicólogo") || lower.includes("terapia") || lower.includes("profesional")) {
     agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
-    setTimeout(() => window.location.href = "psicologo.html", 3000);
+    setTimeout(() => window.location.href = "psicologo.html", 2000);
     return true;
   }
 
-  if (
-    lower.includes("ayuda urgente") ||
-    lower.includes("emergencia") ||
-    lower.includes("no doy más")
-  ) {
+  if (lower.includes("relajación") || lower.includes("ansiedad") || lower.includes("estres")) {
+    agregarMensaje("Te llevo a la sección de relajación para que puedas calmarte.", "ia");
+    setTimeout(() => window.location.href = "relajacion.html", 2000);
+    return true;
+  }
+
+  if (lower.includes("ayuda urgente") || lower.includes("emergencia") || lower.includes("no doy más")) {
     agregarMensaje("Redirigiéndote a ayuda inmediata…", "ia");
-    setTimeout(() => window.location.href = "ayuda.html", 3000);
+    setTimeout(() => window.location.href = "ayuda.html", 2000);
     return true;
   }
 
-  if (
-    lower.includes("me siento mal") ||
-    lower.includes("necesito ayuda") ||
-    lower.includes("estoy solo") ||
-    lower.includes("nadie me quiere")
-  ) {
-    agregarMensaje("Veo que estás mal. Te paso con un psicólogo para tu primera sesión gratuita.", "ia");
-    setTimeout(() => window.location.href = "psicologo.html", 3000);
-    return true;
-  }
-
-  if (
-    lower.includes("relajación") ||
-    lower.includes("ansiedad") ||
-    lower.includes("respirar") ||
-    lower.includes("estresado") ||
-    lower.includes("relajarme")
-  ) {
-    agregarMensaje("Te llevo a la sección de relajación para calmarte…", "ia");
-    setTimeout(() => window.location.href = "relajacion.html", 3000);
-    return true;
-  }
-
-  if (
-    lower.includes("ia") ||
-    lower.includes("chat") ||
-    lower.includes("conversar") ||
-    lower.includes("inteligencia artificial") ||
-    lower.includes("hablar con la ia")
-  ) {
+  if (lower.includes("ia") || lower.includes("chat") || lower.includes("synaptica")) {
     agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
-    setTimeout(() => window.location.href = "chat.html", 3000);
+    setTimeout(() => window.location.href = "chat.html", 2000);
+    return true;
+  }
+
+  if (lower.includes("necesito ayuda") || lower.includes("hablar con alguien")) {
+    agregarMensaje("Te llevo a conversar con nuestra IA especializada para ayudarte mejor.", "ia");
+    setTimeout(() => window.location.href = "chat.html", 2000);
     return true;
   }
 
@@ -164,7 +135,6 @@ async function procesarEntrada(textoUsuario) {
   }
 }
 
-// Enviar al hacer click
 sendButton.addEventListener("click", () => {
   procesarEntrada(input.value.trim());
 });
