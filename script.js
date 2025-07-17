@@ -153,6 +153,7 @@ if ('webkitSpeechRecognition' in window && micBtn) {
   recognition.onresult = (event) => {
     voiceResult = event.results[0][0].transcript.trim();
     console.log('Reconocido:', voiceResult);
+    input.value = voiceResult;  // <= Esto agrega el texto reconocido al input automáticamente
   };
 
   recognition.onerror = () => {
