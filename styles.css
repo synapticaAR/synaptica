@@ -331,6 +331,7 @@ body.index nav {
   align-items: center;
   gap: 10px;
   margin: 15px 0;
+  position: relative;
 }
 
 #mic-btn {
@@ -360,10 +361,15 @@ body.index nav {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--grisSuave);
+  background: #ffffff;
   padding: 8px 12px;
   border-radius: 8px;
-  margin-top: 12px;
+  margin-top: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: absolute;
+  top: 60px;
+  left: 0;
+  z-index: 100;
 }
 
 .hidden {
