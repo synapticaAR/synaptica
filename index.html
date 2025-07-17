@@ -56,120 +56,120 @@
     Synaptica © 2025 – Salud mental sin barreras
   </footer>
 
-<script>
-function scrollToMain(){
-  const hero   = document.querySelector('.hero');
-  const nav    = document.getElementById('mainNav');
-  const header = document.getElementById('mainHeader');
+  <script>
+    function scrollToMain(){
+      const hero   = document.querySelector('.hero');
+      const nav    = document.getElementById('mainNav');
+      const header = document.getElementById('mainHeader');
 
-  hero.classList.add('ocultar-hero');
+      hero.classList.add('ocultar-hero');
 
-  setTimeout(()=>{
-    document.body.classList.remove('index');
-    document.body.classList.add('mostrar-header');
-    hero.remove();
-    nav.classList.add('show');
-    document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
-  }, 800);
-}
+      setTimeout(()=>{
+        document.body.classList.remove('index');
+        document.body.classList.add('mostrar-header');
+        hero.remove();
+        nav.classList.add('show');
+        document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
+      }, 800);
+    }
 
-const introChat = document.getElementById('introChatBox');
-let vozActiva = true;
+    const introChat = document.getElementById('introChatBox');
+    let vozActiva = true;
 
-function introPush(role, txt){
-  const msg = document.createElement('div');
-  msg.className = 'message fade ' + (role === 'user' ? 'user' : 'ia');
-  msg.textContent = txt;
-  introChat.appendChild(msg);
-  introChat.scrollTop = introChat.scrollHeight;
-  if(role === 'ia' && vozActiva) hablar(txt);
-}
+    function introPush(role, txt){
+      const msg = document.createElement('div');
+      msg.className = 'message fade ' + (role === 'user' ? 'user' : 'ia');
+      msg.textContent = txt;
+      introChat.appendChild(msg);
+      introChat.scrollTop = introChat.scrollHeight;
+      if(role === 'ia' && vozActiva) hablar(txt);
+    }
 
-introPush('ia','¿Cómo te sentís hoy? Contanos.');
-hablar('¿Cómo te sentís hoy? Contanos.');
+    introPush('ia','¿Cómo te sentís hoy? Contanos.');
+    hablar('¿Cómo te sentís hoy? Contanos.');
 
-function introSend() {
-    const box = document.getElementById('introUserInput');
-    const texto = box.value.trim();
-    if (!texto) return;
+    function introSend() {
+      const box = document.getElementById('introUserInput');
+      const texto = box.value.trim();
+      if (!texto) return;
 
-    introPush('user', texto);
-    box.value = '';
+      introPush('user', texto);
+      box.value = '';
 
-    if (detectarRedireccion(texto)) return;
+      if (detectarRedireccion(texto)) return;
 
-    fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
+      fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [{ role: "user", content: texto }] })
-    })
-    .then(res => res.json())
-    .then(data => {
+      })
+      .then(res => res.json())
+      .then(data => {
         let respuesta = data.reply || "No entendí bien. ¿Podés explicarlo un poco más?";
         introPush('ia', respuesta);
-    })
-    .catch(err => {
+      })
+      .catch(err => {
         console.error(err);
         introPush('ia', "Lo siento, hubo un error al conectarse con la IA.");
-    });
-}
+      });
+    }
 
-function detectarRedireccion(texto) {
-    const lower = texto.toLowerCase();
+    function detectarRedireccion(texto) {
+      const lower = texto.toLowerCase();
 
-    if (/psicólogo|psicologa|psicologo|profesional|terapia|hablar con un profesional|psiquiatra/.test(lower)) {
+      if (/psicólogo|psicologa|psicologo|profesional|terapia|hablar con un profesional|psiquiatra/.test(lower)) {
         introPush('ia', 'Te llevo con un psicólogo profesional.');
         hablar('Te llevo con un psicólogo profesional.');
         setTimeout(() => location.href = 'psicologo.html', 1500);
         return true;
-    }
+      }
 
-    if (/relajación|relajarme|meditar|meditación|respirar|calmarme|respiración|estres|estresado|ansiedad/.test(lower)) {
+      if (/relajación|relajarme|meditar|meditación|respirar|calmarme|respiración|estres|estresado|ansiedad/.test(lower)) {
         introPush('ia', 'Te llevo a la sección de relajación.');
         hablar('Te llevo a la sección de relajación.');
         setTimeout(() => location.href = 'relajacion.html', 1500);
         return true;
-    }
+      }
 
-    if (/ayuda urgente|ayuda|emergencia|no doy más|necesito ayuda urgente|socorro|auxilio/.test(lower)) {
+      if (/ayuda urgente|ayuda|emergencia|no doy más|necesito ayuda urgente|socorro|auxilio/.test(lower)) {
         introPush('ia', 'Redirigiéndote a ayuda inmediata.');
         hablar('Redirigiéndote a ayuda inmediata.');
         setTimeout(() => location.href = 'ayuda.html', 1500);
         return true;
-    }
+      }
 
-    if (/ia|inteligencia artificial|conversar|quiero hablar con la ia|quiero hablar con synaptica|chat/.test(lower)) {
+      if (/ia|inteligencia artificial|conversar|quiero hablar con la ia|quiero hablar con synaptica|chat/.test(lower)) {
         introPush('ia', 'Te llevo al chat con nuestra IA especializada.');
         hablar('Te llevo al chat con nuestra IA especializada.');
         setTimeout(() => location.href = 'chat.html', 1500);
         return true;
-    }
+      }
 
-    if (/necesito ayuda|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien|necesito contención|contencion emocional/.test(lower)) {
+      if (/necesito ayuda|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien|necesito contención|contencion emocional/.test(lower)) {
         introPush('ia', 'Te llevo al chat con nuestra IA especializada.');
         hablar('Te llevo al chat con nuestra IA especializada.');
         setTimeout(() => location.href = 'chat.html', 1500);
         return true;
+      }
+
+      return false;
     }
 
-    return false;
-}
+    function hablar(texto){
+      if (!vozActiva) return;
+      const voz = new SpeechSynthesisUtterance(texto);
+      voz.lang = 'es-AR';
+      speechSynthesis.speak(voz);
+    }
 
-function hablar(texto){
-  if (!vozActiva) return;
-  const voz=new SpeechSynthesisUtterance(texto);
-  voz.lang='es-AR';
-  speechSynthesis.speak(voz);
-}
+    function toggleVoz(){
+      vozActiva = !vozActiva;
+      const btn = document.getElementById('vozToggle');
+      btn.textContent = vozActiva ? '🔊 Voz ON' : '🔇 Voz OFF';
+      if (!vozActiva) speechSynthesis.cancel();
+    }
 
-function toggleVoz(){
-  vozActiva = !vozActiva;
-  const btn = document.getElementById('vozToggle');
-  btn.textContent = vozActiva ? '🔊 Voz ON' : '🔇 Voz OFF';
-  if (!vozActiva) speechSynthesis.cancel();
-}
-
-document.body.classList.add('mostrar-header');
-</script>
+    document.body.classList.add('mostrar-header');
+  </script>
 </body>
 </html>
