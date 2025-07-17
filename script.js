@@ -12,8 +12,9 @@ voiceToggle?.addEventListener("click", () => {
   if (!vozActivada) speechSynthesis.cancel();
 });
 
-// Mostrar mensaje
+// Mostrar mensaje en el chat principal
 function agregarMensaje(texto, clase) {
+  if (!chatBox) return;
   const div = document.createElement("div");
   div.className = "message " + clase;
   div.textContent = texto;
@@ -21,10 +22,7 @@ function agregarMensaje(texto, clase) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   if (clase === "ia" && vozActivada) {
-    const utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = "es-AR";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+    hablar(texto);
   }
 }
 
@@ -32,45 +30,44 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  // Si ya estamos en chat.html, NO redireccionamos
   if (document.body.classList.contains('chat')) {
-    return false;
+    return false; // si estamos en el chat no redireccionamos
   }
 
   if (/(psicólogo|psicologa|psicologo|terapia|profesional|hablar con un psicólogo|necesito un psicólogo|quiero hablar con un profesional)/i.test(lower)) {
-    agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
-    setTimeout(() => window.location.href = "psicologo.html", 3000);
+    alert("Te llevo con un psicólogo.");
+    setTimeout(() => window.location.href = "psicologo.html", 1000);
     return true;
   }
 
   if (/(relajación|relajarme|ansiedad|estresado|respirar|calmarme|estres|meditación)/i.test(lower)) {
-    agregarMensaje("Te llevo a la sección de relajación para que puedas calmarte.", "ia");
-    setTimeout(() => window.location.href = "relajacion.html", 3000);
+    alert("Te llevo a la sección de relajación.");
+    setTimeout(() => window.location.href = "relajacion.html", 1000);
     return true;
   }
 
   if (/(ayuda urgente|emergencia|no doy más|necesito ayuda urgente)/i.test(lower)) {
-    agregarMensaje("Redirigiéndote a ayuda inmediata…", "ia");
-    setTimeout(() => window.location.href = "ayuda.html", 3000);
+    alert("Redirigiéndote a ayuda inmediata.");
+    setTimeout(() => window.location.href = "ayuda.html", 1000);
     return true;
   }
 
   if (/(ia|chat|conversar|inteligencia artificial|quiero hablar con la ia|synaptica)/i.test(lower)) {
-    agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
-    setTimeout(() => window.location.href = "chat.html", 3000);
+    alert("Te llevo al chat con nuestra IA especializada.");
+    setTimeout(() => window.location.href = "chat.html", 1000);
     return true;
   }
 
   if (/(necesito ayuda|hablar con alguien|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien|ayuda)/i.test(lower)) {
-    agregarMensaje("Te llevo a conversar con nuestra IA especializada para ayudarte mejor.", "ia");
-    setTimeout(() => window.location.href = "chat.html", 3000);
+    alert("Te llevo a conversar con nuestra IA.");
+    setTimeout(() => window.location.href = "chat.html", 1000);
     return true;
   }
 
   return false;
 }
 
-// Procesar entrada
+// Procesar entrada para chat.html
 async function procesarEntrada(textoUsuario) {
   if (!textoUsuario.trim()) return;
 
@@ -105,12 +102,11 @@ async function procesarEntrada(textoUsuario) {
   }
 }
 
-// Enviar al hacer click
 sendButton?.addEventListener("click", () => {
   procesarEntrada(input.value.trim());
 });
 
-// ==== Reconocimiento de voz ====
+// ==== Reconocimiento de voz en chat.html ====
 
 const micBtn = document.getElementById('mic-btn');
 const listeningBar = document.getElementById('listening-bar');
@@ -171,4 +167,72 @@ function resetVoiceUI() {
   reconocimientoActivo = false;
   voiceResult = '';
   if (recognition) recognition.stop();
+}
+
+// ==== LÓGICA PARA index.html ====
+const introChat = document.getElementById('introChatBox');
+const introInput = document.getElementById('introUserInput');
+
+function introPush(role, txt) {
+  if (!introChat) return;
+  const msg = document.createElement('div');
+  msg.className = 'message fade ' + (role === 'user' ? 'user' : 'ia');
+  msg.textContent = txt;
+  introChat.appendChild(msg);
+  introChat.scrollTop = introChat.scrollHeight;
+  if (role === 'ia' && vozActivada) hablar(txt);
+}
+
+function introSend() {
+  const texto = introInput?.value.trim();
+  if (!texto) return;
+
+  introPush('user', texto);
+  introInput.value = '';
+
+  if (manejarRedireccion(texto)) return;
+
+  fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages: [{ role: "user", content: texto }] })
+  })
+  .then(res => res.json())
+  .then(data => {
+    const respuesta = data.reply || "No entendí eso. ¿Podés explicarlo un poco más?";
+    introPush('ia', respuesta);
+  })
+  .catch(err => {
+    console.error(err);
+    introPush('ia', "Lo siento, hubo un error al conectarse con la IA.");
+  });
+}
+
+function hablar(texto) {
+  if (!vozActivada) return;
+  const voz = new SpeechSynthesisUtterance(texto);
+  voz.lang = 'es-AR';
+  speechSynthesis.speak(voz);
+}
+
+// Mensaje inicial si estamos en index
+if (introChat) {
+  introPush('ia', '¿Cómo te sentís hoy? Contanos.');
+  hablar('¿Cómo te sentís hoy? Contanos.');
+}
+
+function scrollToMain() {
+  const hero = document.querySelector('.hero');
+  const nav = document.getElementById('mainNav');
+  const header = document.getElementById('mainHeader');
+
+  hero.classList.add('ocultar-hero');
+
+  setTimeout(() => {
+    document.body.classList.remove('index');
+    document.body.classList.add('mostrar-header');
+    hero.remove();
+    nav.classList.add('show');
+    document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
+  }, 800);
 }
