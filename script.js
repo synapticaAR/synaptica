@@ -1,5 +1,3 @@
-Así?
-
 const input = document.getElementById("userInput");
 const sendButton = document.getElementById("send-btn");
 const chatBox = document.getElementById("chatBox");
@@ -17,8 +15,9 @@ voiceToggle?.addEventListener("click", () => {
 });
 
 // Reconocimiento de voz
-if (micButton && "webkitSpeechRecognition" in window) {
-  const recognition = new webkitSpeechRecognition();
+
+if ('webkitSpeechRecognition' in window && micBtn && document.body.classList.contains('chat')) {
+  recognition = new webkitSpeechRecognition();
   recognition.lang = "es-AR";
   recognition.continuous = false;
   recognition.interimResults = false;
