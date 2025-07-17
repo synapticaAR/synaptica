@@ -31,7 +31,7 @@ function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
   if (document.body.classList.contains('chat')) {
-    return false; // si estamos en el chat no redireccionamos
+    return false;
   }
 
   if (/(psicólogo|psicologa|psicologo|terapia|profesional|hablar con un psicólogo|necesito un psicólogo|quiero hablar con un profesional)/i.test(lower)) {
@@ -61,6 +61,12 @@ function manejarRedireccion(texto) {
   if (/(necesito ayuda|hablar con alguien|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien|ayuda)/i.test(lower)) {
     alert("Te llevo a conversar con nuestra IA.");
     setTimeout(() => window.location.href = "chat.html", 1000);
+    return true;
+  }
+
+  if (/(actividad|actividades|juegos|ejercicio|ejercicios|entretenimiento)/i.test(lower)) {
+    alert("Te llevo a la sección de actividades.");
+    setTimeout(() => window.location.href = "actividades.html", 1000);
     return true;
   }
 
