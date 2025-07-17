@@ -1,25 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Synaptica</title>
-
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    .ocultar-hero {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.8s ease;
-      height: 0;
-      overflow: hidden;
-    }
-  </style>
 </head>
-
 <body class="index">
+
   <section class="hero" id="top">
     <img src="Ayuda.png" alt="Logo" class="logo">
     <h1>Synaptica</h1>
@@ -42,27 +30,15 @@
 
   <section id="main">
     <div class="chat-card">
-      <div id="introChatBox" class="chat-box" aria-live="polite"></div>
-  <div class="chat-input">
-  <input id="introUserInput" type="text" placeholder="Escribí cómo te sentís…">
-  <button onclick="introSend()">Enviar</button>
-  <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
+      <div id="introChatBox" class="chat-box"></div>
 
-  <div id="voice-container">
-    <button id="mic-btn" title="Hablar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M19 11v1a7 7 0 0 1-14 0v-1M12 19v3m-4 0h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-
-    <div id="listening-bar" class="hidden">
-      <div class="voice-wave"></div>
-      <span>Escuchando...</span>
-      <button id="send-btn-voice">✓</button>
-      <button id="cancel-btn-voice">✕</button>
+      <div class="chat-input">
+        <input id="introUserInput" type="text" placeholder="Escribí cómo te sentís…">
+        <button onclick="introSend()">Enviar</button>
+        <button id="vozToggle" onclick="toggleVoz()">🔊 Voz ON</button>
+        <button id="mic-btn">🎤</button>
+      </div>
     </div>
-  </div>
-</div>
   </section>
 
   <footer>
@@ -71,12 +47,11 @@
 
 <script>
 function scrollToMain(){
-  const hero   = document.querySelector('.hero');
-  const nav    = document.getElementById('mainNav');
+  const hero = document.querySelector('.hero');
+  const nav = document.getElementById('mainNav');
   const header = document.getElementById('mainHeader');
 
   hero.classList.add('ocultar-hero');
-
   setTimeout(()=>{
     document.body.classList.remove('index');
     document.body.classList.add('mostrar-header');
@@ -87,43 +62,29 @@ function scrollToMain(){
 }
 
 const introChat = document.getElementById('introChatBox');
+const input = document.getElementById('introUserInput');
 let vozActiva = true;
-
-function introPush(role, txt){
-  const msg = document.createElement('div');
-  msg.className = 'message fade ' + (role === 'user' ? 'user' : 'ia');
-  msg.textContent = txt;
-  introChat.appendChild(msg);
-  introChat.scrollTop = introChat.scrollHeight;
-  if(role === 'ia' && vozActiva) hablar(txt);
-}
 
 introPush('ia','¿Cómo te sentís hoy? Contanos.');
 hablar('¿Cómo te sentís hoy? Contanos.');
 
-const routes=[
-  { re:/psicolog/i,                     href:'psicologo.html' },
-  { re:/relaja|medit|ansiedad|respira/i,href:'relajacion.html'},
-  { re:/ia|chat|conversa/i,             href:'chat.html'     },
-  { re:/ayuda|urgencia|hablar|contencion/i,href:'ayuda.html' }
-];
+function introPush(role, texto){
+  const msg = document.createElement('div');
+  msg.className = 'message ' + (role === 'user' ? 'user' : 'ia');
+  msg.textContent = texto;
+  introChat.appendChild(msg);
+  introChat.scrollTop = introChat.scrollHeight;
+  if(role === 'ia' && vozActiva) hablar(texto);
+}
 
 function introSend(){
-  const box   = document.getElementById('introUserInput');
-  const texto = box.value.trim();
-  if(!texto) return;
+  const texto = input.value.trim();
+  if (!texto) return;
 
   introPush('user', texto);
-  box.value = '';
+  input.value = '';
 
-  for(const r of routes){
-    if(r.re.test(texto)){
-      introPush('ia','¡Entendido! Te acompañamos allí…');
-      hablar('¡Entendido! Te acompañamos allí…');
-      setTimeout(()=>location.href=r.href,1200);
-      return;
-    }
-  }
+  if (detectarRedireccion(texto)) return;
 
   fetch("https://eae9efbf-3f34-41bb-b03b-4ad9dbeedd61-00-23tds4nuay46d.picard.replit.dev/chat", {
     method: "POST",
@@ -132,64 +93,98 @@ function introSend(){
   })
   .then(res => res.json())
   .then(data => {
-    let respuesta = data.reply || "Sin respuesta del servidor.";
-
-    if (/^.*(sou|estou|psicólogo|psicologa).*/i.test(respuesta) && /portugu/i.test(respuesta)) {
-      respuesta = "¿Querés hablar con un psicólogo? Podemos ayudarte.";
-    }
-
-    if (/mal|ansiedad|triste|angustia|solo/i.test(texto)) {
-      respuesta += "\nNo estás solo. Si necesitás hablar con un profesional, puedo llevarte ahora.";
-    }
-
+    const respuesta = data.reply || "No entendí bien. ¿Podés explicarlo un poco más?";
     introPush('ia', respuesta);
   })
-  .catch(err => {
-    console.error(err);
-    introPush('ia', "Lo siento, hubo un error al conectarse con la IA.");
+  .catch(() => {
+    introPush('ia', "⚠️ Hubo un error al conectarse con la IA.");
   });
 }
 
-window.addEventListener('DOMContentLoaded',()=>{
-  const input  = document.getElementById('introUserInput');
-  const micBtn = document.createElement('button');
-  micBtn.textContent='🎤';
-  micBtn.style.cssText='padding:0 12px;font-size:18px;border:none;background:transparent;cursor:pointer';
-  input.parentNode.insertBefore(micBtn,input.nextSibling);
+function detectarRedireccion(texto){
+  const lower = texto.toLowerCase();
 
-  if('webkitSpeechRecognition' in window){
-    const recognition=new webkitSpeechRecognition();
-    recognition.lang='es-AR';
-    recognition.continuous=false;
-    recognition.interimResults=false;
+  if (/psicólogo|psicologa|terapia|profesional|quiero hablar con un profesional/.test(lower)) {
+    introPush('ia', 'Perfecto, te llevo con un profesional.');
+    hablar('Perfecto, te llevo con un profesional.');
+    setTimeout(() => location.href = 'psicologo.html', 1500);
+    return true;
+  }
 
-    micBtn.onclick=()=>{
-      recognition.start();
-      micBtn.textContent='🎙️';
-    };
-    recognition.onresult=e=>{
-      input.value=e.results[0][0].transcript;
-      micBtn.textContent='🎤';
-    };
-    recognition.onerror=()=>{ micBtn.textContent='🎤'; };
-  }else micBtn.style.display='none';
-});
+  if (/relajación|relajarme|ansiedad|estresado|respirar|calmarme|estres/.test(lower)) {
+    introPush('ia', 'Te llevo a la sección de relajación.');
+    hablar('Te llevo a la sección de relajación.');
+    setTimeout(() => location.href = 'relajacion.html', 1500);
+    return true;
+  }
+
+  if (/ayuda urgente|emergencia|no doy más|necesito ayuda urgente/.test(lower)) {
+    introPush('ia', 'Redirigiéndote a ayuda inmediata.');
+    hablar('Redirigiéndote a ayuda inmediata.');
+    setTimeout(() => location.href = 'ayuda.html', 1500);
+    return true;
+  }
+
+  if (/ia|chat|conversar|inteligencia artificial|quiero hablar con la ia|synaptica/.test(lower)) {
+    introPush('ia', 'Te llevo al chat con nuestra IA especializada.');
+    hablar('Te llevo al chat con nuestra IA especializada.');
+    setTimeout(() => location.href = 'chat.html', 1500);
+    return true;
+  }
+
+  if (/necesito ayuda|necesito hablar con alguien|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien/.test(lower)) {
+    introPush('ia', 'Te llevo al chat para que puedas conversar mejor.');
+    hablar('Te llevo al chat para que puedas conversar mejor.');
+    setTimeout(() => location.href = 'chat.html', 1500);
+    return true;
+  }
+
+  return false;
+}
 
 function hablar(texto){
   if (!vozActiva) return;
-  const voz=new SpeechSynthesisUtterance(texto);
-  voz.lang='es-AR';
-  speechSynthesis.speak(voz);
+  const utterance = new SpeechSynthesisUtterance(texto);
+  utterance.lang = 'es-AR';
+  speechSynthesis.speak(utterance);
 }
 
 function toggleVoz(){
   vozActiva = !vozActiva;
-  const btn = document.getElementById('vozToggle');
-  btn.textContent = vozActiva ? '🔊 Voz ON' : '🔇 Voz OFF';
+  document.getElementById('vozToggle').textContent = vozActiva ? '🔊 Voz ON' : '🔇 Voz OFF';
   if (!vozActiva) speechSynthesis.cancel();
 }
 
-document.body.classList.add('mostrar-header');
+// RECONOCIMIENTO DE VOZ
+if ('webkitSpeechRecognition' in window){
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  const micBtn = document.getElementById('mic-btn');
+  micBtn.onclick = () => {
+    recognition.start();
+    micBtn.textContent = '🎙️ Escuchando...';
+  };
+
+  recognition.onresult = (e) => {
+    const texto = e.results[0][0].transcript.trim();
+    input.value = texto;
+    micBtn.textContent = '🎤';
+    introSend();
+  };
+
+  recognition.onerror = () => {
+    micBtn.textContent = '🎤';
+    alert('Error al capturar la voz. Intentá de nuevo.');
+  };
+
+  recognition.onend = () => {
+    micBtn.textContent = '🎤';
+  };
+}
 </script>
+
 </body>
 </html>
