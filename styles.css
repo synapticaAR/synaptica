@@ -169,31 +169,54 @@ header p {
   align-self: flex-end;
 }
 
-/* CHAT INPUT GENERAL */
+/* CHAT INPUT GENERAL MEJORADO PARA RESPONSIVE */
 .chat-input {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
+  margin-top: 10px;
 }
-.chat-input input {
-  flex: 1;
+
+.chat-input input,
+.chat-input textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
   padding: 10px 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
 }
+
 .chat-input button {
-  background: var(--acento);
-  color: white;
-  border: none;
   padding: 10px 16px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  background: var(--acento);
+  color: white;
+  border: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .chat-input button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 91, 252, 0.3);
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .chat-input {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .chat-input button {
+    width: 100%;
+    font-size: 1rem;
+  }
 }
 
 /* BOTÓN DE VOZ 🔊 / 🔇 */
