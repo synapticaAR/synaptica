@@ -188,7 +188,7 @@ const cancelVoiceBtn = document.getElementById('cancel-btn-voice');
 let recognition;
 let voiceResult = '';
 
-if ('webkitSpeechRecognition' in window) {
+if ('webkitSpeechRecognition' in window && micBtn) {
   recognition = new webkitSpeechRecognition();
   recognition.lang = 'es-AR';
   recognition.continuous = false;
@@ -232,5 +232,6 @@ cancelVoiceBtn?.addEventListener('click', () => {
 function resetVoiceUI() {
   listeningBar.classList.add('hidden');
   micBtn.classList.remove('listening');
+  voiceResult = '';
   if (recognition) recognition.stop();
 }
