@@ -188,7 +188,7 @@ const cancelVoiceBtn = document.getElementById('cancel-btn-voice');
 let recognition;
 let voiceResult = '';
 
-if ('webkitSpeechRecognition' in window && micBtn) {
+if ('webkitSpeechRecognition' in window && micBtn && document.body.classList.contains('chat')) {
   recognition = new webkitSpeechRecognition();
   recognition.lang = 'es-AR';
   recognition.continuous = false;
