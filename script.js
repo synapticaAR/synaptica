@@ -2,10 +2,8 @@ const input = document.getElementById("userInput");
 const sendButton = document.getElementById("send-btn");
 const chatBox = document.getElementById("chatBox");
 const voiceToggle = document.getElementById("vozToggle");
-const micButton = document.getElementById("mic-btn");
 
 let vozActivada = true;
-let reconocimientoActivo = false;
 
 // Alternar voz
 voiceToggle?.addEventListener("click", () => {
@@ -13,40 +11,6 @@ voiceToggle?.addEventListener("click", () => {
   voiceToggle.textContent = vozActivada ? "🔊 Voz ON" : "🔇 Voz OFF";
   if (!vozActivada) speechSynthesis.cancel();
 });
-
-// Reconocimiento de voz
-
-if ('webkitSpeechRecognition' in window && micBtn && document.body.classList.contains('chat')) {
-  recognition = new webkitSpeechRecognition();
-  recognition.lang = "es-AR";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
-  micButton.addEventListener("click", () => {
-    if (reconocimientoActivo) return;
-    reconocimientoActivo = true;
-    recognition.start();
-    micButton.textContent = "🎙️ Escuchando...";
-    micButton.disabled = true;
-  });
-
-  recognition.onresult = (event) => {
-    const result = event.results[0][0].transcript.trim();
-    input.value = result;
-    micButton.textContent = "🎤";
-    micButton.disabled = false;
-    reconocimientoActivo = false;
-    recognition.stop();
-    if (result) procesarEntrada(result);
-  };
-
-  recognition.onerror = recognition.onend = () => {
-    micButton.textContent = "🎤";
-    micButton.disabled = false;
-    reconocimientoActivo = false;
-    recognition.stop();
-  };
-}
 
 // Mostrar mensaje
 function agregarMensaje(texto, clase) {
@@ -68,29 +32,19 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  // Psicólogo o profesional
   if (
-    lower.includes("psicólogo") ||
-    lower.includes("psicologa") ||
-    lower.includes("psicologo") ||
-    lower.includes("terapia") ||
-    lower.includes("profesional") ||
-    lower.includes("quiero hablar con un psicólogo") ||
-    lower.includes("necesito un psicólogo")
+    lower.includes("psicólogo") || lower.includes("psicologa") || lower.includes("psicologo") ||
+    lower.includes("terapia") || lower.includes("profesional") ||
+    lower.includes("quiero hablar con un psicólogo") || lower.includes("necesito un psicólogo")
   ) {
     agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
     setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
-  // Relajación o ansiedad
   if (
-    lower.includes("relajación") ||
-    lower.includes("relajarme") ||
-    lower.includes("ansiedad") ||
-    lower.includes("estresado") ||
-    lower.includes("respirar") ||
-    lower.includes("calmarme") ||
+    lower.includes("relajación") || lower.includes("relajarme") || lower.includes("ansiedad") ||
+    lower.includes("estresado") || lower.includes("respirar") || lower.includes("calmarme") ||
     lower.includes("estres")
   ) {
     agregarMensaje("Te llevo a la sección de relajación para que puedas calmarte.", "ia");
@@ -98,25 +52,18 @@ function manejarRedireccion(texto) {
     return true;
   }
 
-  // Emergencia o ayuda urgente
   if (
-    lower.includes("ayuda urgente") ||
-    lower.includes("emergencia") ||
-    lower.includes("no doy más") ||
-    lower.includes("necesito ayuda urgente")
+    lower.includes("ayuda urgente") || lower.includes("emergencia") ||
+    lower.includes("no doy más") || lower.includes("necesito ayuda urgente")
   ) {
     agregarMensaje("Redirigiéndote a ayuda inmediata…", "ia");
     setTimeout(() => window.location.href = "ayuda.html", 3000);
     return true;
   }
 
-  // IA Especializada
   if (
-    lower.includes("ia") ||
-    lower.includes("chat") ||
-    lower.includes("conversar") ||
-    lower.includes("inteligencia artificial") ||
-    lower.includes("quiero hablar con la ia") ||
+    lower.includes("ia") || lower.includes("chat") || lower.includes("conversar") ||
+    lower.includes("inteligencia artificial") || lower.includes("quiero hablar con la ia") ||
     lower.includes("quiero hablar con synaptica")
   ) {
     agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
@@ -124,14 +71,10 @@ function manejarRedireccion(texto) {
     return true;
   }
 
-  // Casos ambiguos o de necesidad de hablar con alguien
   if (
-    lower.includes("necesito ayuda") ||
-    lower.includes("necesito hablar con alguien") ||
-    lower.includes("me siento mal") ||
-    lower.includes("estoy solo") ||
-    lower.includes("nadie me quiere") ||
-    lower.includes("quiero hablar con alguien")
+    lower.includes("necesito ayuda") || lower.includes("necesito hablar con alguien") ||
+    lower.includes("me siento mal") || lower.includes("estoy solo") ||
+    lower.includes("nadie me quiere") || lower.includes("quiero hablar con alguien")
   ) {
     agregarMensaje("Te llevo a conversar con nuestra IA especializada para ayudarte mejor.", "ia");
     setTimeout(() => window.location.href = "chat.html", 3000);
@@ -177,9 +120,11 @@ async function procesarEntrada(textoUsuario) {
 }
 
 // Enviar al hacer click
-sendButton.addEventListener("click", () => {
+sendButton?.addEventListener("click", () => {
   procesarEntrada(input.value.trim());
 });
+
+// ==== Reconocimiento de voz ====
 
 const micBtn = document.getElementById('mic-btn');
 const listeningBar = document.getElementById('listening-bar');
@@ -188,40 +133,42 @@ const cancelVoiceBtn = document.getElementById('cancel-btn-voice');
 
 let recognition;
 let voiceResult = '';
+let reconocimientoActivo = false;
 
-if ('webkitSpeechRecognition' in window && micBtn && document.body.classList.contains('chat')) {
+if ('webkitSpeechRecognition' in window && micBtn) {
   recognition = new webkitSpeechRecognition();
   recognition.lang = 'es-AR';
   recognition.continuous = false;
   recognition.interimResults = false;
 
   micBtn.addEventListener('click', () => {
+    if (reconocimientoActivo) return;
+    reconocimientoActivo = true;
     recognition.start();
     micBtn.classList.add('listening');
-    listeningBar.classList.remove('hidden');
+    listeningBar?.classList.remove('hidden');
     voiceResult = '';
   });
 
   recognition.onresult = (event) => {
-    voiceResult = event.results[0][0].transcript;
+    voiceResult = event.results[0][0].transcript.trim();
     console.log('Reconocido:', voiceResult);
+  };
+
+  recognition.onerror = () => {
+    resetVoiceUI();
+    alert('Error al capturar la voz. Intentá de nuevo.');
   };
 
   recognition.onend = () => {
     micBtn.classList.remove('listening');
-    // No cerramos la barra hasta que envíen o cancelen
   };
-
- recognition.onerror = () => {
-    micBtn.classList.remove('listening');
-    listeningBar.classList.add('hidden');
-    alert('Error al capturar la voz. Intentá de nuevo.');
-};
 }
 
 sendVoiceBtn?.addEventListener('click', () => {
   if (voiceResult) {
-    procesarEntrada(voiceResult);
+    agregarMensaje(voiceResult, "user");
+    procesarEntrada?.(voiceResult);
   }
   resetVoiceUI();
 });
@@ -231,8 +178,9 @@ cancelVoiceBtn?.addEventListener('click', () => {
 });
 
 function resetVoiceUI() {
-  listeningBar.classList.add('hidden');
+  listeningBar?.classList.add('hidden');
   micBtn.classList.remove('listening');
+  reconocimientoActivo = false;
   voiceResult = '';
   if (recognition) recognition.stop();
 }
