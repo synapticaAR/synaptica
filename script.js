@@ -37,50 +37,31 @@ function manejarRedireccion(texto) {
     return false;
   }
 
-  if (
-    lower.includes("psicólogo") || lower.includes("psicologa") || lower.includes("psicologo") ||
-    lower.includes("terapia") || lower.includes("profesional") ||
-    lower.includes("quiero hablar con un psicólogo") || lower.includes("necesito un psicólogo")
-  ) {
+  if (/(psicólogo|psicologa|psicologo|terapia|profesional|hablar con un psicólogo|necesito un psicólogo|quiero hablar con un profesional)/i.test(lower)) {
     agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
     setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
-  if (
-    lower.includes("relajación") || lower.includes("relajarme") || lower.includes("ansiedad") ||
-    lower.includes("estresado") || lower.includes("respirar") || lower.includes("calmarme") ||
-    lower.includes("estres")
-  ) {
+  if (/(relajación|relajarme|ansiedad|estresado|respirar|calmarme|estres|meditación)/i.test(lower)) {
     agregarMensaje("Te llevo a la sección de relajación para que puedas calmarte.", "ia");
     setTimeout(() => window.location.href = "relajacion.html", 3000);
     return true;
   }
 
-  if (
-    lower.includes("ayuda urgente") || lower.includes("emergencia") ||
-    lower.includes("no doy más") || lower.includes("necesito ayuda urgente")
-  ) {
+  if (/(ayuda urgente|emergencia|no doy más|necesito ayuda urgente)/i.test(lower)) {
     agregarMensaje("Redirigiéndote a ayuda inmediata…", "ia");
     setTimeout(() => window.location.href = "ayuda.html", 3000);
     return true;
   }
 
-  if (
-    lower.includes("ia") || lower.includes("chat") || lower.includes("conversar") ||
-    lower.includes("inteligencia artificial") || lower.includes("quiero hablar con la ia") ||
-    lower.includes("quiero hablar con synaptica")
-  ) {
+  if (/(ia|chat|conversar|inteligencia artificial|quiero hablar con la ia|synaptica)/i.test(lower)) {
     agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
     setTimeout(() => window.location.href = "chat.html", 3000);
     return true;
   }
 
-  if (
-    lower.includes("necesito ayuda") || lower.includes("necesito hablar con alguien") ||
-    lower.includes("me siento mal") || lower.includes("estoy solo") ||
-    lower.includes("nadie me quiere") || lower.includes("quiero hablar con alguien")
-  ) {
+  if (/(necesito ayuda|hablar con alguien|me siento mal|estoy solo|nadie me quiere|quiero hablar con alguien|ayuda)/i.test(lower)) {
     agregarMensaje("Te llevo a conversar con nuestra IA especializada para ayudarte mejor.", "ia");
     setTimeout(() => window.location.href = "chat.html", 3000);
     return true;
