@@ -423,3 +423,18 @@ body.index nav {
 
 #send-btn-voice:hover { color: green; }
 #cancel-btn-voice:hover { color: red; }
+
+/* === NAV RESPONSIVE FIX === */
+@media (max-width: 600px) {
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  nav a {
+    flex: 1 1 40%;
+    text-align: center;
+    min-width: 100px;
+  }
+}
