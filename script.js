@@ -179,3 +179,58 @@ async function procesarEntrada(textoUsuario) {
 sendButton.addEventListener("click", () => {
   procesarEntrada(input.value.trim());
 });
+
+const micBtn = document.getElementById('mic-btn');
+const listeningBar = document.getElementById('listening-bar');
+const sendVoiceBtn = document.getElementById('send-btn-voice');
+const cancelVoiceBtn = document.getElementById('cancel-btn-voice');
+
+let recognition;
+let voiceResult = '';
+
+if ('webkitSpeechRecognition' in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  micBtn.addEventListener('click', () => {
+    recognition.start();
+    micBtn.classList.add('listening');
+    listeningBar.classList.remove('hidden');
+    voiceResult = '';
+  });
+
+  recognition.onresult = (event) => {
+    voiceResult = event.results[0][0].transcript;
+    console.log('Reconocido:', voiceResult);
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('listening');
+    // No cerramos la barra hasta que envíen o cancelen
+  };
+
+  recognition.onerror = () => {
+    micBtn.classList.remove('listening');
+    listeningBar.classList.add('hidden');
+    alert('Error al capturar la voz. Intentá de nuevo.');
+  };
+}
+
+sendVoiceBtn?.addEventListener('click', () => {
+  if (voiceResult) {
+    procesarEntrada(voiceResult);
+  }
+  resetVoiceUI();
+});
+
+cancelVoiceBtn?.addEventListener('click', () => {
+  resetVoiceUI();
+});
+
+function resetVoiceUI() {
+  listeningBar.classList.add('hidden');
+  micBtn.classList.remove('listening');
+  if (recognition) recognition.stop();
+}
