@@ -67,33 +67,73 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
-  if (lower.includes("psicólogo") || lower.includes("terapia") || lower.includes("profesional")) {
+  // Psicólogo o profesional
+  if (
+    lower.includes("psicólogo") ||
+    lower.includes("psicologa") ||
+    lower.includes("psicologo") ||
+    lower.includes("terapia") ||
+    lower.includes("profesional") ||
+    lower.includes("quiero hablar con un psicólogo") ||
+    lower.includes("necesito un psicólogo")
+  ) {
     agregarMensaje("Te llevo con un psicólogo para que puedas hablar con un profesional.", "ia");
-    setTimeout(() => window.location.href = "psicologo.html", 2000);
+    setTimeout(() => window.location.href = "psicologo.html", 3000);
     return true;
   }
 
-  if (lower.includes("relajación") || lower.includes("ansiedad") || lower.includes("estres")) {
+  // Relajación o ansiedad
+  if (
+    lower.includes("relajación") ||
+    lower.includes("relajarme") ||
+    lower.includes("ansiedad") ||
+    lower.includes("estresado") ||
+    lower.includes("respirar") ||
+    lower.includes("calmarme") ||
+    lower.includes("estres")
+  ) {
     agregarMensaje("Te llevo a la sección de relajación para que puedas calmarte.", "ia");
-    setTimeout(() => window.location.href = "relajacion.html", 2000);
+    setTimeout(() => window.location.href = "relajacion.html", 3000);
     return true;
   }
 
-  if (lower.includes("ayuda urgente") || lower.includes("emergencia") || lower.includes("no doy más")) {
+  // Emergencia o ayuda urgente
+  if (
+    lower.includes("ayuda urgente") ||
+    lower.includes("emergencia") ||
+    lower.includes("no doy más") ||
+    lower.includes("necesito ayuda urgente")
+  ) {
     agregarMensaje("Redirigiéndote a ayuda inmediata…", "ia");
-    setTimeout(() => window.location.href = "ayuda.html", 2000);
+    setTimeout(() => window.location.href = "ayuda.html", 3000);
     return true;
   }
 
-  if (lower.includes("ia") || lower.includes("chat") || lower.includes("synaptica")) {
+  // IA Especializada
+  if (
+    lower.includes("ia") ||
+    lower.includes("chat") ||
+    lower.includes("conversar") ||
+    lower.includes("inteligencia artificial") ||
+    lower.includes("quiero hablar con la ia") ||
+    lower.includes("quiero hablar con synaptica")
+  ) {
     agregarMensaje("Te llevo al chat con nuestra IA especializada…", "ia");
-    setTimeout(() => window.location.href = "chat.html", 2000);
+    setTimeout(() => window.location.href = "chat.html", 3000);
     return true;
   }
 
-  if (lower.includes("necesito ayuda") || lower.includes("hablar con alguien")) {
+  // Casos ambiguos o de necesidad de hablar con alguien
+  if (
+    lower.includes("necesito ayuda") ||
+    lower.includes("necesito hablar con alguien") ||
+    lower.includes("me siento mal") ||
+    lower.includes("estoy solo") ||
+    lower.includes("nadie me quiere") ||
+    lower.includes("quiero hablar con alguien")
+  ) {
     agregarMensaje("Te llevo a conversar con nuestra IA especializada para ayudarte mejor.", "ia");
-    setTimeout(() => window.location.href = "chat.html", 2000);
+    setTimeout(() => window.location.href = "chat.html", 3000);
     return true;
   }
 
@@ -135,6 +175,7 @@ async function procesarEntrada(textoUsuario) {
   }
 }
 
+// Enviar al hacer click
 sendButton.addEventListener("click", () => {
   procesarEntrada(input.value.trim());
 });
