@@ -1,3 +1,5 @@
+Así?
+
 const input = document.getElementById("userInput");
 const sendButton = document.getElementById("send-btn");
 const chatBox = document.getElementById("chatBox");
@@ -211,11 +213,11 @@ if ('webkitSpeechRecognition' in window && micBtn && document.body.classList.con
     // No cerramos la barra hasta que envíen o cancelen
   };
 
-  recognition.onerror = () => {
+ recognition.onerror = () => {
     micBtn.classList.remove('listening');
     listeningBar.classList.add('hidden');
     alert('Error al capturar la voz. Intentá de nuevo.');
-  };
+};
 }
 
 sendVoiceBtn?.addEventListener('click', () => {
