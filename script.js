@@ -32,6 +32,11 @@ function agregarMensaje(texto, clase) {
 function manejarRedireccion(texto) {
   const lower = texto.toLowerCase();
 
+  // Si ya estamos en chat.html, NO redireccionamos
+  if (document.body.classList.contains('chat')) {
+    return false;
+  }
+
   if (
     lower.includes("psicólogo") || lower.includes("psicologa") || lower.includes("psicologo") ||
     lower.includes("terapia") || lower.includes("profesional") ||
@@ -153,7 +158,7 @@ if ('webkitSpeechRecognition' in window && micBtn) {
   recognition.onresult = (event) => {
     voiceResult = event.results[0][0].transcript.trim();
     console.log('Reconocido:', voiceResult);
-    input.value = voiceResult;  // <= Esto agrega el texto reconocido al input automáticamente
+    input.value = voiceResult;
   };
 
   recognition.onerror = () => {
@@ -163,6 +168,7 @@ if ('webkitSpeechRecognition' in window && micBtn) {
 
   recognition.onend = () => {
     micBtn.classList.remove('listening');
+    reconocimientoActivo = false;
   };
 }
 
